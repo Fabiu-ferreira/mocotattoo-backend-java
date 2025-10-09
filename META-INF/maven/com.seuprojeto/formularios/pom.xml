@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 1. SINTAXE CORRIGIDA: A tag <project> e os atributos de schema estão unidos corretamente -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.seuprojeto</groupId>
+    <artifactId>formularios</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    
+    <!-- Define que é um projeto web (Web Archive) -->
+    <packaging>war</packaging>
+
+    <properties>
+        <!-- Define a versão do Java que será usada na compilação -->
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <!-- 2. DEPENDENCIA OBRIGATÓRIA PARA SERVLETS (jakarta.servlet.*) -->
+        <!-- O scope 'provided' diz ao Maven que o servidor (Tomcat) já terá este JAR -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version> 
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- 3. DEPENDENCIA OBRIGATÓRIA PARA EMAIL (Jakarta Mail) -->
+        <!-- Esta dependência contém as classes que começam com jakarta.mail.* -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <version>2.0.1</version> 
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Plugin para garantir que a compilação use a versão Java correta -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
