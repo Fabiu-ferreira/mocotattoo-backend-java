@@ -3,33 +3,36 @@
 # -----------------------------------------------------------
 FROM maven:3.8.4-openjdk-17 AS build
 
-# Define o diretório de trabalho para onde vamos COPIAR o código no container.
-WORKDIR /app
+# Define o diretório base para o código (pasta "mocotattoo-backend-java" do seu projeto)
+# Mantenha o WORKDIR em minúsculas se a pasta for em minúsculas, ou use a capitalização EXATA.
+WORKDIR /app/mocotattoo-backend-java 
 
-# Copia o código-fonte do repositório para o diretório de trabalho no container.
-# O ponto ( . ) significa "tudo na raiz do contexto de compilação do Docker" (que é a raiz do seu repositório).
-COPY . .
+# Copia apenas o conteúdo da pasta do projeto para o WORKDIR correto.
+# Como o Dockerfile está na raiz do repo e o código está em um subdiretório,
+# você precisa COPIAR o subdiretório para dentro do WORKDIR.
 
-# Altera o diretório de trabalho para a pasta onde está o pom.xml
-# Substitua 'mocotattoo-backend-java' pelo nome da pasta que tem o pom.xml.
-WORKDIR /app/mocotattoo-backend-java
+# Se o Dockerfile está na raiz e a pasta do projeto é 'mocotattoo-backend-java':
+COPY ./mocotattoo-backend-java .
+
+# Se a sua pasta do projeto tem outra capitalização (ex: 'MocoTattoo'):
+# COPY ./MocoTattoo .
 
 # Executa a compilação.
 RUN mvn clean package -DskipTests
+
 
 # -----------------------------------------------------------
 # Estágio 2: Execução (Runtime Stage)
 # -----------------------------------------------------------
 FROM tomcat:10.1.47-jdk17
 
-# O WORKDIR e a COPY para o Tomcat devem ser ajustados 
-# para pegar o arquivo .war gerado no estágio 'build'.
-
+# WORKDIR para o Tomcat
 WORKDIR /usr/local/tomcat/webapps
-# Copia o arquivo .war gerado (mocotattoo-backend-java-*.war) para o diretório webapps do Tomcat.
-# Você precisará saber o nome exato do arquivo .war gerado.
-# Assumindo que o nome do artefato é 'target/mocotattoo-backend-java.war'
-COPY --from=build /app/mocotattoo-backend-java/target/*.war /usr/local/tomcat/webapps/ROOT.war
-# Definir como ROOT.war garante que o site seja acessado pela raiz.
 
+# Copia o arquivo .war gerado
+COPY --from=build /app/mocotattoo-backend-java/target/*.war /usr/local/tomcat/webapps/ROOT.war
+
+# O comando "catalina run" (CMD)
+# A imagem oficial do Tomcat JÁ POSSUI o comando de execução.
+# Se quiser ser explícito, adicione:
  CMD ["catalina.sh", "run"]
