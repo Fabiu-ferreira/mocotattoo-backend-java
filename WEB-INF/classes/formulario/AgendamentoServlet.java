@@ -20,15 +20,11 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/AgendamentoServlet")
 public class AgendamentoServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    
-    // A URL base do seu frontend no GitHub Pages
-    private static final String FRONTEND_ORIGIN = "https://fabiu-ferreira.github.io/mocotattoo-studio";
 
     // Método para lidar com requisições OPTIONS (CORS)
     @Override
     protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // CORREÇÃO CRÍTICA: Define a origem exata do seu frontend
-        response.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+        response.setHeader("Access-Control-Allow-Origin", "https://fabiu-ferreira.github.io");
         response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
         response.setStatus(HttpServletResponse.SC_OK);
@@ -39,7 +35,7 @@ public class AgendamentoServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // Headers CORS para o POST
-        response.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+        response.setHeader("Access-Control-Allow-Origin", "https://fabiu-ferreira.github.io");
         response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -54,10 +50,7 @@ public class AgendamentoServlet extends HttpServlet {
         // 2️⃣ Verifica se a variável de ambiente está correta
         System.out.println("Senha lida do ambiente: " + senhaApp);
         if (senhaApp == null || senhaApp.isEmpty()) {
-            // Em caso de erro na variável de ambiente, loga e redireciona para erro
-            System.err.println("Erro: Variável de ambiente Senha_Gmail não encontrada ou vazia!");
-            response.sendRedirect(FRONTEND_ORIGIN + "/?status=config_error");
-            return;
+            throw new ServletException("Variável de ambiente Senha_Gmail não encontrada ou vazia!");
         }
 
         String destinatarioEstudio = "studiomocotatoo@gmail.com";
@@ -78,7 +71,7 @@ public class AgendamentoServlet extends HttpServlet {
         });
 
         try {
-            // Enviar e-mail para o Estúdio
+            // 4. Enviar e-mail para o Estúdio
             Message emailEstudio = new MimeMessage(session);
             emailEstudio.setFrom(new InternetAddress(remetente));
             emailEstudio.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatarioEstudio));
@@ -86,35 +79,40 @@ public class AgendamentoServlet extends HttpServlet {
             emailEstudio.setText("Nome: " + nome + "\nEmail: " + email + "\nTelefone: " + telefone);
             Transport.send(emailEstudio);
 
-            // Enviar e-mail de Confirmação para o Cliente
+            // 5. Enviar e-mail de Confirmação para o Cliente
             Message emailCliente = new MimeMessage(session);
             emailCliente.setFrom(new InternetAddress(remetente));
             emailCliente.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
             emailCliente.setSubject("Confirmação de Agendamento");
             emailCliente.setText(
-                "Olá " + nome + ",\n\n" +
-                "Obrigado por agendar um horário conosco no Studio Mocotattoo!\n\n" +
-                "Aqui estão os detalhes que recebemos:\n" +
-                "- Nome: " + nome + "\n" +
-                "- E-mail: " + email + "\n" +
-                "- Telefone: " + telefone + "\n\n" +
-                "Nossa equipe entrará em contato em breve para confirmar o horário do seu atendimento.\n\n" +
-                "Se precisar alterar algum dado ou cancelar o agendamento, entre em contato com nosso e-mail: studiomocotatoo@gmail.com ou pelo telefone: (XX) XXXXX-XXXX.\n\n" +
-                "Aguardamos você!\n\n" +
-                "Atenciosamente,\n" +
-                "Equipe Studio Mocotattoo"
+                    "Olá " + nome + ",\n\n" +
+                    "Obrigado por agendar um horário conosco no Studio Mocotattoo!\n\n" +
+                    "Aqui estão os detalhes que recebemos:\n" +
+                    "- Nome: " + nome + "\n" +
+                    "- E-mail: " + email + "\n" +
+                    "- Telefone: " + telefone + "\n\n" +
+                    "Nossa equipe entrará em contato em breve para confirmar o horário do seu atendimento.\n\n" +
+                    "Se precisar alterar algum dado ou cancelar o agendamento, entre em contato com nosso e-mail: studiomocotatoo@gmail.com ou pelo telefone: (XX) XXXXX-XXXX.\n\n" +
+                    "Aguardamos você!\n\n" +
+                    "Atenciosamente,\n" +
+                    "Equipe Studio Mocotattoo"
             );
 
             Transport.send(emailCliente);
 
-            // 6. Resposta: REDIRECIONAMENTO para a página inicial com status de sucesso
-         private static final String FRONTEND_ORIGIN = "https://fabiu-ferreira.github.io"; 
-            
+            // 6. Resposta: mostrar mensagem de sucesso
+            response.setContentType("text/html;charset=UTF-8");
+            response.getWriter().write(
+            	    "<div style='position:relative; width:100%; height:100vh;'>" +
+            	    "  <img src='imagens/Imagem-sucesso.png' alt='Sucesso' style='width:100%; height:100%; object-fit:cover;' />" +
+            	    "  <h2 style='position:absolute; top:2%; left:50%; transform:translate(-50%, -50%); color:white; font-size:48px; text-shadow:2px 2px 4px #000;'>Agendamento enviado com sucesso ✅</h2>" +
+            	    "</div>"
+            	);
+
         } catch (MessagingException e) {
             e.printStackTrace();
 
-            // 7. Resposta: REDIRECIONAMENTO para a página inicial com status de erro
-            response.sendRedirect(FRONTEND_ORIGIN + "/?status=error");
+            
         }
     }
 }
