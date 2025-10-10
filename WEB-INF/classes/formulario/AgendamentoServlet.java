@@ -46,9 +46,13 @@ public class AgendamentoServlet extends HttpServlet {
 
         // 3. Criação da Sessão com Autenticação (usa classes jakarta.mail)
         Session session = Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(remetente, senhaApp);
+           @Override
+protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    response.setHeader("Access-Control-Allow-Origin", "https://fabiu-ferreira.github.io");
+    response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    response.setStatus(HttpServletResponse.SC_OK);
+}
             }
         });
 
