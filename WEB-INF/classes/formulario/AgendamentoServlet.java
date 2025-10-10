@@ -22,40 +22,54 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AgendamentoServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    // Método para lidar com requisições OPTIONS (CORS)
+    @Override
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setHeader("Access-Control-Allow-Origin", "https://fabiu-ferreira.github.io");
+        response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Coleta dos dados do formulário
+        // Headers CORS para o POST
+        response.setHeader("Access-Control-Allow-Origin", "https://fabiu-ferreira.github.io");
+        response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+        // 1️⃣ Coleta dos dados do formulário
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
         String telefone = request.getParameter("telefone");
 
         String remetente = "studiomocotatoo@gmail.com";
-        // VARIÁVEL CORRIGIDA: Usa System.getenv() para carregar a senha de forma segura, 
-        // evitando expor a chave no código-fonte.
         String senhaApp = System.getenv("Senha_Gmail"); // SENHA DE APP
-                System.out.println("Senha lida do ambiente: " + senhaApp);
+
+        // 2️⃣ Verifica se a variável de ambiente está correta
+        System.out.println("Senha lida do ambiente: " + senhaApp);
+        if (senhaApp == null || senhaApp.isEmpty()) {
+            throw new ServletException("Variável de ambiente Senha_Gmail não encontrada ou vazia!");
+        }
+
         String destinatarioEstudio = "studiomocotatoo@gmail.com";
 
-        // 2. Configurações SMTP para GMAIL
+        // 3️⃣ Configurações SMTP
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
 
-        // 3. Criação da Sessão com Autenticação (usa classes jakarta.mail)
+        // 4️⃣ Criação da Sessão SMTP
         Session session = Session.getInstance(props, new Authenticator() {
-           @Override
-protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    response.setHeader("Access-Control-Allow-Origin", "https://fabiu-ferreira.github.io");
-    response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    response.setStatus(HttpServletResponse.SC_OK);
-}
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(remetente, senhaApp);
             }
         });
-
 
         try {
             // 4. Enviar e-mail para o Estúdio
