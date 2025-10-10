@@ -108,7 +108,7 @@ public class AgendamentoServlet extends HttpServlet {
             Transport.send(emailCliente);
 
             // 6. Resposta: REDIRECIONAMENTO para a página inicial com status de sucesso
-            response.sendRedirect(FRONTEND_ORIGIN + "/?status=success");
+         private static final String FRONTEND_ORIGIN = "https://fabiu-ferreira.github.io"; 
             
         } catch (MessagingException e) {
             e.printStackTrace();
