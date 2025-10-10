@@ -1,16 +1,20 @@
+Back-end:
 package formulario;
 
 import java.io.IOException;
 import java.util.Properties;
 
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.PasswordAuthentication;
-import jakarta.mail.Transport;
-import jakarta.mail.Session;
-import jakarta.mail.Authenticator;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
+// Imports JavaMail/Jakarta Mail
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication; 
+import javax.mail.Session; 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+// Imports Servlet
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,50 +25,28 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AgendamentoServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    // Método para lidar com requisições OPTIONS (CORS)
-    @Override
-    protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", "https://fabiu-ferreira.github.io");
-        response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        response.setStatus(HttpServletResponse.SC_OK);
-    }
-
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Headers CORS para o POST
-        response.setHeader("Access-Control-Allow-Origin", "https://fabiu-ferreira.github.io");
-        response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-        // 1️⃣ Coleta dos dados do formulário
+        // 1. Coleta dos dados do formulário
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
         String telefone = request.getParameter("telefone");
 
         String remetente = "studiomocotatoo@gmail.com";
-        String senhaApp = System.getenv("Senha_Gmail"); // SENHA DE APP
-
-        // 2️⃣ Verifica se a variável de ambiente está correta
-        System.out.println("Senha lida do ambiente: " + senhaApp);
-        if (senhaApp == null || senhaApp.isEmpty()) {
-            throw new ServletException("Variável de ambiente Senha_Gmail não encontrada ou vazia!");
-        }
-
+        String senhaApp = "tlevqrnodyxbrlks"; // SENHA DE APP
         String destinatarioEstudio = "studiomocotatoo@gmail.com";
 
-        // 3️⃣ Configurações SMTP
+        // 2. Configurações SMTP para GMAIL
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
 
-        // 4️⃣ Criação da Sessão SMTP
+        // 3. Criação da Sessão com Autenticação
         Session session = Session.getInstance(props, new Authenticator() {
-            @Override
+            @Override    
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(remetente, senhaApp);
             }
@@ -102,17 +84,14 @@ public class AgendamentoServlet extends HttpServlet {
 
             // 6. Resposta: mostrar mensagem de sucesso
             response.setContentType("text/html;charset=UTF-8");
-            response.getWriter().write(
-            	    "<div style='position:relative; width:100%; height:100vh;'>" +
-            	    "  <img src='imagens/Imagem-sucesso.png' alt='Sucesso' style='width:100%; height:100%; object-fit:cover;' />" +
-            	    "  <h2 style='position:absolute; top:2%; left:50%; transform:translate(-50%, -50%); color:white; font-size:48px; text-shadow:2px 2px 4px #000;'>Agendamento enviado com sucesso ✅</h2>" +
-            	    "</div>"
-            	);
+            response.getWriter().write("<h2>Agendamento enviado com sucesso ✅</h2>");
 
         } catch (MessagingException e) {
             e.printStackTrace();
 
-            
+            // 7. Resposta: mostrar mensagem de erro
+            response.setContentType("text/html;charset=UTF-8");
+            response.getWriter().write("<h2>Erro no envio ❌</h2>");
         }
     }
 }
