@@ -32,7 +32,7 @@ public class AgendamentoServlet extends HttpServlet {
         String remetente = "studiomocotatoo@gmail.com";
         // VARIÁVEL CORRIGIDA: Usa System.getenv() para carregar a senha de forma segura, 
         // evitando expor a chave no código-fonte.
-        String senhaApp = System.getenv("GMAIL_APP_PASSWORD"); // SENHA DE APP
+        String senhaApp = System.getenv("Senha_Gmail"); // SENHA DE APP
         String destinatarioEstudio = "studiomocotatoo@gmail.com";
 
         // 2. Configurações SMTP para GMAIL
