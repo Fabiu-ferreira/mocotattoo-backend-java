@@ -1,20 +1,16 @@
-Back-end:
 package formulario;
 
 import java.io.IOException;
 import java.util.Properties;
 
-// Imports JavaMail/Jakarta Mail
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication; 
-import javax.mail.Session; 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-// Imports Servlet
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Transport;
+import jakarta.mail.Session;
+import jakarta.mail.Authenticator;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -34,7 +30,9 @@ public class AgendamentoServlet extends HttpServlet {
         String telefone = request.getParameter("telefone");
 
         String remetente = "studiomocotatoo@gmail.com";
-        String senhaApp = "tlevqrnodyxbrlks"; // SENHA DE APP
+        // VARIÁVEL CORRIGIDA: Usa System.getenv() para carregar a senha de forma segura, 
+        // evitando expor a chave no código-fonte.
+        String senhaApp = System.getenv("GMAIL_APP_PASSWORD"); // SENHA DE APP
         String destinatarioEstudio = "studiomocotatoo@gmail.com";
 
         // 2. Configurações SMTP para GMAIL
@@ -44,13 +42,14 @@ public class AgendamentoServlet extends HttpServlet {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
 
-        // 3. Criação da Sessão com Autenticação
+        // 3. Criação da Sessão com Autenticação (usa classes jakarta.mail)
         Session session = Session.getInstance(props, new Authenticator() {
-            @Override    
+            @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(remetente, senhaApp);
             }
         });
+
 
         try {
             // 4. Enviar e-mail para o Estúdio
@@ -84,14 +83,23 @@ public class AgendamentoServlet extends HttpServlet {
 
             // 6. Resposta: mostrar mensagem de sucesso
             response.setContentType("text/html;charset=UTF-8");
-            response.getWriter().write("<h2>Agendamento enviado com sucesso ✅</h2>");
+            response.getWriter().write(
+            	    "<div style='position:relative; width:100%; height:100vh;'>" +
+            	    "  <img src='imagens/Imagem-sucesso.png' alt='Sucesso' style='width:100%; height:100%; object-fit:cover;' />" +
+            	    "  <h2 style='position:absolute; top:2%; left:50%; transform:translate(-50%, -50%); color:white; font-size:48px; text-shadow:2px 2px 4px #000;'>Agendamento enviado com sucesso ✅</h2>" +
+            	    "</div>"
+            	);
 
         } catch (MessagingException e) {
             e.printStackTrace();
 
             // 7. Resposta: mostrar mensagem de erro
-            response.setContentType("text/html;charset=UTF-8");
-            response.getWriter().write("<h2>Erro no envio ❌</h2>");
+            response.getWriter().write(
+            	    "<div style='position:relative; width:100%; height:100vh; min-height:100vh; display:flex; align-items:center; justify-content:center;'>" +
+            	    "  <img src='" + request.getContextPath() + "/imagens/Imagem-erro.png' alt='Erro' style='width:100%; height:100%; object-fit:cover;' />" +
+            	    "  <h2 style='position:absolute; top:60%; left:50%; transform:translateX(-50%); color:white; font-size:48px; text-shadow:2px 2px 4px #000;'>Erro no envio </h2>" +
+            	    "</div>"
+            	);
         }
     }
 }
